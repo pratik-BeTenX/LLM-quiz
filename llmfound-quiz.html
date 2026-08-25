@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Foundations — Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7EFE2;--card:#FFFBF3;--line:#E7D8C4;--ink:#4A3830;--dim:#A08B79;
+  --clay:#B4785B;--clay-deep:#9A5F44;--ok:#7FA37A;--ok-bg:#EEF3EA;--bad:#C97B7B;--bad-bg:#F7EAEA;
+  --mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;
+  display:flex;justify-content:center;padding:22px 14px 44px;min-height:100vh}
+.app{width:100%;max-width:480px}
+header{text-align:center;margin-bottom:16px}
+.eyebrow{font-size:.66rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--clay);margin-bottom:6px}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:1.95rem;line-height:1.05}
+h1 .accent{color:var(--clay)}
+.sub{font-size:.85rem;color:var(--dim);margin-top:6px;font-weight:600}
+.orn{color:var(--clay);font-size:.9rem;margin-top:8px;letter-spacing:.5em}
+.dots{display:flex;justify-content:center;gap:8px;margin:16px 0 18px}
+.dots .dot{width:10px;height:10px;border-radius:50%;background:var(--line);transition:all .3s}
+.dots .dot.current{background:var(--clay);transform:scale(1.35)}
+.dots .dot.ok{background:var(--ok)}.dots .dot.bad{background:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 20px;box-shadow:0 6px 24px rgba(122,90,64,.08)}
+.qmeta{display:flex;justify-content:space-between;font-size:.68rem;font-weight:800;color:var(--dim);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+.art{display:block;margin:0 auto 12px;max-width:100%;height:auto}
+.qtext{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;line-height:1.35;min-height:78px;margin-bottom:14px}
+.qtext .caret{display:inline-block;width:3px;height:1em;background:var(--clay);vertical-align:-2px;animation:blink 1s steps(1) infinite;margin-left:2px;border-radius:2px}
+@keyframes blink{50%{opacity:.1}}
+.snippet{font-family:var(--mono);font-size:.76rem;background:var(--ink);color:#F0E5D8;border-radius:12px;
+  padding:12px 14px;margin-bottom:14px;line-height:1.7;overflow-x:auto;display:none}
+.snippet.on{display:block}
+.snippet .kw{color:#E8B583}.snippet .st{color:#A8C99A}.snippet .cm{color:#9A8776}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);
+  border-radius:14px;padding:14px 15px;cursor:pointer;line-height:1.45;font-size:.93rem;font-weight:600;
+  transition:all .15s;display:flex;gap:11px;align-items:flex-start}
+.opt:hover{border-color:var(--clay);background:#FBF3E7}
+.opt .key{font-size:.72rem;font-weight:800;color:var(--clay);background:#F2E4D4;border-radius:7px;padding:2px 7px;margin-top:2px;flex-shrink:0}
+.opt.correct{background:var(--ok-bg);border-color:var(--ok)}.opt.correct .key{color:#fff;background:var(--ok)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}.opt.wrong .key{color:#fff;background:var(--bad)}
+.opt:disabled{cursor:default}.opt:disabled:not(.correct):not(.wrong){opacity:.45}
+.explain{margin-top:14px;border-left:3px solid var(--clay);background:#FBF3E7;border-radius:0 12px 12px 0;
+  padding:13px 15px;font-size:.88rem;line-height:1.55;color:#6B5647;display:none}
+.explain b{color:var(--clay-deep)}
+.explain code{font-family:var(--mono);font-size:.8rem;background:#F2E4D4;padding:1px 5px;border-radius:5px}
+.next{margin-top:16px;width:100%;font-family:'Fraunces',serif;font-weight:900;font-size:1.02rem;color:#FFFBF3;
+  background:var(--clay);border:none;border-radius:14px;padding:15px;cursor:pointer;display:none}
+.next:hover{background:var(--clay-deep)}
+.score{text-align:center;display:none}
+.score .bloom{font-size:2.2rem;margin-bottom:4px}
+.score h2{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;margin-bottom:4px}
+.score .big{font-family:'Fraunces',serif;font-weight:900;font-size:3rem;color:var(--clay);margin:8px 0 2px}
+.score .grade{color:var(--dim);font-size:.92rem;font-weight:700;margin-bottom:18px;line-height:1.5}
+.score .stats{font-size:.8rem;font-weight:600;color:var(--dim);border-top:1.5px dashed var(--line);
+  border-bottom:1.5px dashed var(--line);padding:12px 0;margin-bottom:18px;line-height:1.9}
+.btnrow{display:grid;gap:10px}
+.ghost{font-weight:800;color:var(--clay);background:none;border:1.5px solid var(--clay);border-radius:14px;padding:14px;cursor:pointer;font-size:.95rem}
+footer{margin-top:18px;text-align:center;font-size:.68rem;font-weight:700;color:#BCA893;letter-spacing:.14em;text-transform:uppercase}
+
+  .hero{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;
+    margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  .hero[hidden]{display:none}
+.sticker{position:fixed;z-index:6;cursor:grab;touch-action:none;user-select:none;filter:drop-shadow(0 6px 14px rgba(122,90,64,.18))}
+.sticker:active{cursor:grabbing}
+.sticker .in{display:inline-block;animation:bob var(--dur,6s) ease-in-out var(--del,0s) infinite alternate}
+.sticker.dragging{z-index:70}.sticker.dragging .in{animation-play-state:paused}
+@keyframes bob{from{transform:translateY(0) rotate(var(--rot,-4deg))}to{transform:translateY(-12px) rotate(calc(var(--rot,-4deg) + 4deg))}}
+.st-e .in{font-size:1.9rem;line-height:1;background:var(--card);border:3px solid #fff;border-radius:20px;padding:10px 12px;box-shadow:0 0 0 1.5px var(--line) inset}
+.st-e.sm .in{font-size:1.45rem;padding:8px 10px;border-radius:16px}
+.st-t .in{font-family:var(--mono);font-weight:500;font-size:.83rem;padding:9px 14px;border-radius:12px;border:3px solid #fff}
+.st-t.sm .in{font-size:.74rem;padding:7px 11px}
+.st-m .in{font-family:'Permanent Marker',cursive;font-size:1rem}
+.t-clay .in{background:var(--clay);color:#FFF6E9}
+.t-sage .in{background:var(--ok);color:#F4F8F1}
+.t-ink .in{background:var(--ink);color:#F7EFE2}
+.t-cream .in{background:var(--card);color:var(--clay-deep);box-shadow:0 0 0 1.5px var(--line) inset}
+@media(max-width:1080px){.sticker{display:none}}
+body,button,.opt,.dot{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 24 24'%3E%3Crect x='6' y='6' width='12' height='12' rx='2.5' fill='%23FFFBF3' stroke='%23B4785B' stroke-width='1.8'/%3E%3Crect x='9.5' y='9.5' width='5' height='5' rx='1' fill='%23B4785B'/%3E%3Cpath d='M9 6V3M15 6V3M9 21v-3M15 21v-3M6 9H3M6 15H3M21 9h-3M21 15h-3' stroke='%23B4785B' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E") 6 4, auto}
+.trail{position:fixed;pointer-events:none;z-index:999;color:var(--clay);font-family:var(--mono);font-weight:500;user-select:none}
+@media(prefers-reduced-motion:reduce){.sticker .in,.qtext .caret{animation:none}}
+</style>
+</head>
+<body>
+<div class="sticker st-e"    style="left:4%;top:14%;--rot:-6deg;--dur:5.4s"><span class="in">💻</span></div>
+<div class="sticker st-e sm" style="left:10%;top:40%;--rot:5deg;--dur:6.2s;--del:.4s"><span class="in">☁️</span></div>
+<div class="sticker st-e"    style="left:5%;top:68%;--rot:4deg;--dur:5.8s;--del:.9s"><span class="in">🧩</span></div>
+<div class="sticker st-t sm t-clay" style="left:3%;top:28%;--rot:-8deg;--dur:5.6s"><span class="in">ollama run</span></div>
+<div class="sticker st-t sm t-sage" style="left:9%;top:56%;--rot:6deg;--dur:6s;--del:.6s"><span class="in">temperature 0.7</span></div>
+<div class="sticker st-e sm" style="right:9%;top:16%;--rot:6deg;--dur:5.5s;--del:.3s"><span class="in">🔑</span></div>
+<div class="sticker st-e"    style="right:4%;top:44%;--rot:-5deg;--dur:6.4s;--del:.7s"><span class="in">🧠</span></div>
+<div class="sticker st-e sm" style="right:10%;top:72%;--rot:3deg;--dur:5.2s"><span class="in">⚡</span></div>
+<div class="sticker st-t sm t-cream" style="right:3%;top:30%;--rot:7deg;--dur:5.9s;--del:.5s"><span class="in">8k context</span></div>
+<div class="sticker st-t sm t-ink st-m" style="right:5%;top:60%;--rot:-6deg;--dur:6.1s;--del:.8s"><span class="in">run it local</span></div>
+
+<div class="app">
+  <header>
+    <img class="hero" id="hero" alt="" hidden>
+    <div class="eyebrow">Daily Drop · Quiz</div>
+    <h1>LLMs: local,<br><span class="accent">API & fine-tuned</span></h1>
+    <div class="sub">10 questions · start from zero, no coding needed</div>
+    <div class="orn">❀ ❀ ❀</div>
+  </header>
+  <div class="dots" id="dots"></div>
+  <main class="card" id="card">
+    <div class="qmeta"><span id="qnum">Question 1 of 10</span><span id="qtopic"></span></div>
+    <div id="artbox"></div>
+    <p class="qtext" id="qtext" aria-live="polite"></p>
+    <div class="snippet" id="snippet"></div>
+    <div class="opts" id="opts"></div>
+    <div class="explain" id="explain"></div>
+    <button class="next" id="next">Next question</button>
+    <div class="score" id="score">
+      <div class="bloom">🧠</div>
+      <h2>All done!</h2>
+      <div class="big" id="finalScore">0/10</div>
+      <div class="grade" id="grade"></div>
+      <div class="stats" id="stats"></div>
+      <div class="btnrow">
+        <button class="next" id="share" style="display:block">Copy my result</button>
+        <button class="ghost" id="retry">Take it again</button>
+      </div>
+    </div>
+  </main>
+  <footer>local · api · fine-tune</footer>
+</div>
+<script>
+/* ===== paste your generated image URL between the quotes ===== */
+const HERO_IMAGE="";
+/* ============================================================ */
+if(HERO_IMAGE){const h=document.getElementById("hero");h.src=HERO_IMAGE;h.hidden=false;}
+const C={clay:'#B4785B',ink:'#4A3830',line:'#E7D8C4',cream:'#FFFBF3',sage:'#7FA37A',dim:'#A08B79'};
+const ART={
+ tokens:`<svg class="art" width="300" height="76" viewBox="0 0 300 76">
+   <text x="8" y="20" font-family="Nunito" font-size="11" fill="${C.dim}" font-weight="700">"unbelievable"  →  3 tokens</text>
+   ${['un','believ','able'].map((t,i)=>`<g><rect x="${8+i*96}" y="30" width="88" height="34" rx="8" fill="${C.cream}" stroke="${C.clay}" stroke-width="2"/><text x="${52+i*96}" y="52" text-anchor="middle" font-family="JetBrains Mono" font-size="14" fill="${C.ink}">${t}</text></g>`).join('')}
+ </svg>`,
+ ctx:`<svg class="art" width="300" height="86" viewBox="0 0 300 86">
+   <rect x="8" y="14" width="220" height="58" rx="10" fill="${C.cream}" stroke="${C.clay}" stroke-width="2"/>
+   <text x="18" y="34" font-family="Nunito" font-size="10" font-weight="800" fill="${C.clay}">CONTEXT WINDOW</text>
+   ${[0,1,2,3,4,5].map(i=>`<rect x="${18+i*34}" y="44" width="28" height="14" rx="4" fill="${C.clay}" opacity="${0.85-i*0.08}"/>`).join('')}
+   ${[0,1,2].map(i=>`<rect x="${238+i*20}" y="44" width="15" height="14" rx="4" fill="${C.line}"/>`).join('')}
+   <text x="238" y="36" font-family="Nunito" font-size="9" font-weight="800" fill="${C.dim}">falls out</text>
+ </svg>`,
+ local:`<svg class="art" width="300" height="92" viewBox="0 0 300 92">
+   <rect x="86" y="14" width="128" height="76" rx="8" fill="${C.ink}"/>
+   <rect x="94" y="22" width="112" height="56" rx="4" fill="${C.cream}"/>
+   <rect x="128" y="36" width="44" height="28" rx="5" fill="${C.clay}"/>
+   <text x="150" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="${C.cream}">LLM</text>
+   ${[0,1,2].map(i=>`<path d="M${116-i*0} ${40+i*10}h10M184 ${40+i*10}h10" stroke="${C.clay}" stroke-width="2" stroke-linecap="round"/>`).join('')}
+   <text x="150" y="88" text-anchor="middle" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">runs on your laptop · no internet</text>
+ </svg>`,
+ api:`<svg class="art" width="300" height="92" viewBox="0 0 300 92">
+   <rect x="12" y="34" width="72" height="42" rx="7" fill="${C.cream}" stroke="${C.clay}" stroke-width="2"/>
+   <text x="48" y="60" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="800" fill="${C.ink}">your app</text>
+   <path d="M92 55h44" stroke="${C.clay}" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"/>
+   <path d="M136 55l-8-5v10z" fill="${C.clay}"/>
+   <path d="M212 30a26 26 0 00-50 6 20 20 0 002 40h50a23 23 0 00-2-46z" fill="${C.clay}" opacity=".9"/>
+   <text x="196" y="66" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="800" fill="${C.cream}">big model</text>
+   <text x="150" y="88" text-anchor="middle" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">runs on their servers · costs per use</text>
+ </svg>`,
+ key:`<svg class="art" width="300" height="84" viewBox="0 0 300 84">
+   <rect x="70" y="12" width="160" height="60" rx="10" fill="${C.cream}" stroke="${C.clay}" stroke-width="2"/>
+   <circle cx="108" cy="42" r="13" fill="none" stroke="${C.clay}" stroke-width="4"/>
+   <path d="M120 42h44M156 42v10M146 42v8" stroke="${C.clay}" stroke-width="4" stroke-linecap="round"/>
+   <text x="150" y="80" text-anchor="middle" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">an API key is a password with a bill attached</text>
+ </svg>`,
+ temp:`<svg class="art" width="300" height="80" viewBox="0 0 300 80">
+   <rect x="30" y="30" width="240" height="12" rx="6" fill="${C.line}"/>
+   <rect x="30" y="30" width="120" height="12" rx="6" fill="${C.clay}"/>
+   <circle cx="150" cy="36" r="11" fill="${C.cream}" stroke="${C.clay}" stroke-width="3"/>
+   <text x="30" y="62" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">0 · same answer every time</text>
+   <text x="270" y="62" text-anchor="end" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">1 · wilder</text>
+ </svg>`,
+ ladder:`<svg class="art" width="300" height="104" viewBox="0 0 300 104">
+   ${['better prompt','add examples','RAG (your docs)','fine-tune'].map((t,i)=>`
+   <rect x="${16+i*8}" y="${82-i*22}" width="200" height="18" rx="6" fill="${i===3?C.clay:C.cream}" stroke="${C.clay}" stroke-width="1.6"/>
+   <text x="${26+i*8}" y="${95-i*22}" font-family="Nunito" font-size="10.5" font-weight="800" fill="${i===3?C.cream:C.ink}">${t}</text>`).join('')}
+   <text x="240" y="24" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">climb only</text>
+   <text x="240" y="37" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">if stuck</text>
+ </svg>`,
+ quant:`<svg class="art" width="300" height="86" viewBox="0 0 300 86">
+   <rect x="24" y="16" width="90" height="54" rx="8" fill="${C.clay}"/>
+   <text x="69" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="${C.cream}">7B</text>
+   <text x="69" y="56" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="${C.cream}">14 GB</text>
+   <path d="M126 43h34" stroke="${C.clay}" stroke-width="2.5" stroke-linecap="round"/><path d="M160 43l-8-5v10z" fill="${C.clay}"/>
+   <rect x="176" y="28" width="62" height="32" rx="7" fill="${C.sage}"/>
+   <text x="207" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#F4F8F1">7B q4</text>
+   <text x="207" y="54" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#F4F8F1">4 GB</text>
+   <text x="150" y="80" text-anchor="middle" font-family="Nunito" font-size="10" font-weight="800" fill="${C.dim}">quantization = shrink to fit your RAM</text>
+ </svg>`
+};
+const QUESTIONS=[
+ {topic:"basics",art:'tokens',q:"At its core, what is a large language model doing?",
+  opts:["Searching Google for you","Predicting the next piece of text, again and again","Storing files","Running your antivirus"],a:1,
+  ex:"An LLM is a very good <b>next-piece-of-text predictor</b>. Everything else — answering, coding, translating — comes out of doing that millions of times, very fast."},
+ {topic:"basics",art:'tokens',q:"A 'token' is…",
+  opts:["A password","A chunk of text, roughly ¾ of a word","A coin you buy","A type of file"],a:1,
+  ex:"Models read and write in <b>tokens</b>, not letters. 'unbelievable' is 3 tokens. Every API bill is counted in tokens, so this word shows up everywhere."},
+ {topic:"basics",art:'ctx',q:"The 'context window' is…",
+  opts:["How much text the model can hold at once","Your screen size","The chat colour theme","How fast it types"],a:0,
+  ex:"It's the model's <b>short-term memory</b>. Go past it and the oldest text falls out — which is why very long chats start forgetting what you said at the beginning."},
+ {topic:"local",art:'local',q:"Running an LLM 'locally' means…",
+  opts:["Using ChatGPT in your browser","It runs on your own computer, offline","It runs in your city","Downloading a chat history"],a:1,
+  ex:"The model file sits on your machine and runs on your CPU/GPU. <b>No internet, no bill, and your data never leaves the laptop.</b> Trade-off: smaller and less capable than the big hosted models."},
+ {topic:"local",q:"Which of these lets you run an LLM on your own laptop?",
+  opts:["Photoshop","Ollama","Slack","Canva"],a:1,
+  ex:"<b>Ollama</b> is the easiest starting point — two commands and you have a model running. LM Studio is the click-based alternative if you prefer buttons to a terminal."},
+ {topic:"local",art:'quant',q:"A model is '7B'. What does the B mean?",
+  opts:["Billion parameters — roughly its size","Bytes","Bandwidth","Version B"],a:0,
+  ex:"<b>7 billion parameters.</b> Bigger usually means smarter but heavier — a 7B model needs several GB of RAM, while a 70B won't fit on a normal laptop at all."},
+ {topic:"apis",art:'api',q:"Why would you use a hosted API instead of running locally?",
+  opts:["It works without electricity","The hosted models are much bigger, and you need no powerful PC","APIs are always free","Local models are illegal"],a:1,
+  ex:"You rent someone else's giant model and their GPUs. You pay per token and your data leaves your machine — that's the deal in exchange for far more capability."},
+ {topic:"apis",art:'key',q:"An API key is best described as…",
+  opts:["A password that identifies you and bills you","A file format","A type of model","A wifi password"],a:0,
+  ex:"Anyone with your key can spend your money. Keep it in <b>server-side environment variables</b> — never in frontend code, never in a screenshot, never in GitHub."},
+ {topic:"apis",art:'temp',q:"'Temperature' in an API call controls…",
+  opts:["How hot your GPU gets","How random or creative the output is","The response speed","The price"],a:1,
+  ex:"Low temperature (0–0.3) = consistent, repeatable answers — good for extraction and classification. Higher = more varied — good for brainstorming and writing."},
+ {topic:"fine-tuning",art:'ladder',q:"Fine-tuning is the right tool when you want the model to…",
+  opts:["Know your latest company policy","Reply in a consistent style or format, every time","Run faster","Use less RAM"],a:1,
+  ex:"<b>Fine-tuning teaches behaviour, not facts.</b> For new information — documents, policies, prices — use RAG instead. Climb the ladder in order: better prompt → examples → RAG → fine-tune."}
+];
+const GRADES=[
+ {min:9,label:"Foundations solid 🧠 You're ready to run one yourself."},
+ {min:7,label:"Close — one more pass on the weak spots."},
+ {min:4,label:"Good start 🌱 Replay today's drop and try again."},
+ {min:0,label:"Everyone starts here. Take it again — it sticks the second time."}
+];
+const dots=document.getElementById('dots'),qnum=document.getElementById('qnum'),qtopic=document.getElementById('qtopic');
+const qtext=document.getElementById('qtext'),optsEl=document.getElementById('opts'),snip=document.getElementById('snippet');
+const artbox=document.getElementById('artbox');
+const explainEl=document.getElementById('explain'),nextBtn=document.getElementById('next'),scoreEl=document.getElementById('score');
+const KEYS=['A','B','C','D'];let i=0,correct=0,results=[],qStart=0,typer=null;
+QUESTIONS.forEach(()=>dots.insertAdjacentHTML('beforeend','<div class="dot"></div>'));
+function typeQ(t){clearInterval(typer);qtext.innerHTML='<span class="caret"></span>';let n=0;
+  typer=setInterval(()=>{n+=2;qtext.innerHTML=t.slice(0,n)+'<span class="caret"></span>';
+    if(n>=t.length){clearInterval(typer);qtext.textContent=t;}},16);}
+function render(){
+  const Q=QUESTIONS[i];
+  document.querySelectorAll('.dots .dot').forEach((d,k)=>{
+    d.className='dot'+(k===i?' current':results[k]===true?' ok':results[k]===false?' bad':'');});
+  qnum.textContent=`Question ${i+1} of ${QUESTIONS.length}`;qtopic.textContent=Q.topic;
+  artbox.innerHTML=Q.art?ART[Q.art]:'';
+  typeQ(Q.q);snip.className='snippet'+(Q.code?' on':'');snip.innerHTML=Q.code||'';
+  explainEl.style.display='none';nextBtn.style.display='none';optsEl.innerHTML='';
+  Q.opts.forEach((o,k)=>{const b=document.createElement('button');b.className='opt';
+    b.innerHTML=`<span class="key">${KEYS[k]}</span><span>${o}</span>`;
+    b.addEventListener('click',()=>answer(k));optsEl.appendChild(b);});
+  qStart=performance.now();
+}
+function answer(k){
+  const Q=QUESTIONS[i],secs=((performance.now()-qStart)/1000).toFixed(1),ok=k===Q.a;
+  results[i]=ok;if(ok)correct++;
+  [...optsEl.children].forEach((b,idx)=>{b.disabled=true;
+    if(idx===Q.a)b.classList.add('correct');else if(idx===k&&!ok)b.classList.add('wrong');});
+  explainEl.innerHTML=Q.ex+`<span style="display:block;margin-top:8px;font-size:.72rem;font-weight:700;color:var(--dim)">answered in ${secs}s</span>`;
+  explainEl.style.display='block';nextBtn.style.display='block';
+  nextBtn.textContent=i===QUESTIONS.length-1?'See my score':'Next question';
+  document.querySelectorAll('.dots .dot')[i].className='dot '+(ok?'ok':'bad');nextBtn.focus();
+}
+nextBtn.addEventListener('click',()=>{i++;i<QUESTIONS.length?render():showScore();});
+function showScore(){
+  qnum.parentElement.style.display='none';qtext.style.display='none';snip.className='snippet';
+  artbox.innerHTML='';optsEl.style.display='none';explainEl.style.display='none';nextBtn.style.display='none';
+  const grade=GRADES.find(g=>correct>=g.min).label;
+  document.getElementById('finalScore').textContent=`${correct}/${QUESTIONS.length}`;
+  document.getElementById('grade').textContent=grade;
+  const missed=QUESTIONS.filter((_,k)=>!results[k]).map(q=>q.topic);
+  document.getElementById('stats').innerHTML=
+    `${results.filter(Boolean).length} correct · ${results.filter(r=>r===false).length} to review<br>`+
+    (missed.length?'revisit: '+[...new Set(missed)].join(' · '):'perfect run ❀');
+  scoreEl.style.display='block';
+  document.getElementById('share').onclick=function(){
+    const t=`LLM Foundations Quiz — ${correct}/${QUESTIONS.length}\n${results.map(r=>r?'🟢':'🟠').join('')}\n${grade}`;
+    navigator.clipboard.writeText(t).then(()=>{this.textContent='Copied ✓';
+      setTimeout(()=>this.textContent='Copy my result',1600);}).catch(()=>{this.textContent=t;});};
+  document.getElementById('retry').onclick=()=>{i=0;correct=0;results=[];scoreEl.style.display='none';
+    qnum.parentElement.style.display='flex';qtext.style.display='block';optsEl.style.display='grid';render();};
+}
+render();
+(function(){const G=['{ }','tok','0.7','7B','→','q4'];let last=0,n=0;
+addEventListener('pointermove',e=>{const now=performance.now();if(now-last<62)return;last=now;
+  const s=document.createElement('span');s.className='trail';s.textContent=G[n++%G.length];
+  s.style.left=(e.clientX-4)+'px';s.style.top=(e.clientY-6)+'px';
+  s.style.fontSize=(.6+Math.random()*.32).toFixed(2)+'rem';document.body.appendChild(s);
+  const dx=(Math.random()-.5)*26,rot=(Math.random()-.5)*40;
+  s.animate([{transform:'translate(0,0) rotate(0) scale(.7)',opacity:.8},
+    {transform:`translate(${dx}px,-22px) rotate(${rot}deg) scale(1)`,opacity:0}],{duration:620,easing:'ease-out'});
+  setTimeout(()=>s.remove(),620);});})();
+document.querySelectorAll('.sticker').forEach(st=>{let sx,sy,ox,oy;
+  st.addEventListener('pointerdown',e=>{e.preventDefault();st.setPointerCapture(e.pointerId);
+    st.classList.add('dragging');const r=st.getBoundingClientRect();
+    st.style.left=r.left+'px';st.style.top=r.top+'px';st.style.right='auto';
+    sx=e.clientX;sy=e.clientY;ox=r.left;oy=r.top;});
+  st.addEventListener('pointermove',e=>{if(!st.classList.contains('dragging'))return;
+    st.style.left=Math.max(-30,Math.min(innerWidth-50,ox+e.clientX-sx))+'px';
+    st.style.top=Math.max(0,Math.min(innerHeight-40,oy+e.clientY-sy))+'px';});
+  const d=e=>{st.classList.remove('dragging');
+    if(st.hasPointerCapture&&st.hasPointerCapture(e.pointerId))st.releasePointerCapture(e.pointerId);};
+  st.addEventListener('pointerup',d);st.addEventListener('pointercancel',d);});
+</script>
+</body>
+</html>
